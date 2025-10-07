@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  client
+  agent
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  rut       String   @unique
+  email     String?  @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[]
+  debts    Debt[]
+
+  @@index([name])
+  @@index([rut])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  text      String
+  role      Role
+  sentAt    DateTime
+  clientId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, sentAt])
+}
+
+model Debt {
+  id         Int      @id @default(autoincrement())
+  institution String
+  amount     Int
+  dueDate    DateTime
+  clientId   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}
