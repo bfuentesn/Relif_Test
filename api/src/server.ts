@@ -59,6 +59,17 @@ app.use(bodyParser({
 app.use(json());
 
 /**
+ * Middleware para manejar el prefijo /api en Vercel
+ * Remueve /api del path para que las rutas funcionen correctamente
+ */
+app.use(async (ctx: Context, next: () => Promise<any>) => {
+  if (ctx.path.startsWith('/api')) {
+    ctx.path = ctx.path.replace('/api', '') || '/';
+  }
+  await next();
+});
+
+/**
  * Configuración de rutas
  * Aplica todas las rutas de la API con sus métodos permitidos
  */
