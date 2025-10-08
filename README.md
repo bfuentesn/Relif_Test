@@ -1,5 +1,8 @@
 # CRM Automotriz con Asistente de IA
 
+## 🌐 Demo en Vivo
+**🔗 Aplicación desplegada:** https://relif-test.vercel.app/
+
 Sistema CRM especializado para concesionarias automotrices que integra un asistente de IA (GPT-4o-mini) para generar mensajes de seguimiento personalizados. Desarrollado con React, TypeScript, Node.js/Koa y PostgreSQL.
 
 ## 🏗️ Arquitectura del Proyecto

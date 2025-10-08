@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -11,22 +8,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  client
-  agent
-}
-
 model Client {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  rut       String   @unique
-  email     String?  @unique
+  rut       String    @unique
+  email     String?   @unique
   phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  messages Message[]
-  debts    Debt[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  debts     Debt[]
+  messages  Message[]
 
   @@index([name])
   @@index([rut])
@@ -40,39 +31,42 @@ model Message {
   clientId  Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([clientId, sentAt])
 }
 
 model Debt {
-  id         Int      @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   institution String
-  amount     Int
-  dueDate    DateTime
-  clientId   Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  amount      Int
+  dueDate     DateTime
+  clientId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([clientId])
 }
 
 model AssistantConfig {
-  id           Int      @id @default(autoincrement())
-  name         String   @default("Carla")
-  tone         String   @default("profesional")
-  language     String   @default("es")
-  brands       String[] @default(["Toyota", "Hyundai", "Chevrolet", "Suzuki", "Mazda"])
-  models       Json     @default("{\"Toyota\":[\"Corolla\",\"RAV4\"],\"Hyundai\":[\"Tucson\",\"Elantra\"],\"Chevrolet\":[\"Tracker\",\"Onix\"],\"Suzuki\":[\"Swift\"],\"Mazda\":[\"CX-5\"]}")
-  branches     String[] @default(["Providencia", "Maipú", "La Florida"])
-  messageLengthMin Int  @default(120)
-  messageLengthMax Int  @default(180)
-  signature    String   @default("Carla — Automotora")
-  useEmojis    Boolean  @default(true)
-  additionalInstructions String? @default("")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                     Int      @id @default(autoincrement())
+  name                   String
+  tone                   String
+  language               String
+  brands                 String[]
+  models                 Json
+  branches               String[]
+  messageLengthMin       Int
+  messageLengthMax       Int
+  signature              String
+  useEmojis              Boolean
+  additionalInstructions String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+enum Role {
+  client
+  agent
 }
