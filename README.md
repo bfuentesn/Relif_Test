@@ -26,7 +26,7 @@ Sistema CRM especializado para concesionarias automotrices que integra un asiste
 - **Generación contextual**: Mensajes personalizados basados en historial de conversaciones
 - **Reglas de negocio**: Manejo automático de clientes con/sin deudas para ofertas de financiamiento
 - **Configuración dinámica**: Tono, idioma, catálogo de vehículos y sucursales personalizables
-- **Context-aware**: Utiliza conversaciones anteriores para evitar repeticiones
+- **Context-aware**: Utiliza conversaciones anteriores para evitar repeticiones.
 
 ### 📊 Dashboard de Métricas
 - Estadísticas en tiempo real de clientes activos vs seguimiento
