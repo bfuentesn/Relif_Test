@@ -9,18 +9,14 @@
       }
     },
     {
-      "src": "api/vercel.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["api/prisma/**", "api/src/**", "api/dist/**"],
-        "maxLambdaSize": "50mb"
-      }
+      "src": "api/src/server.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/vercel.js"
+      "dest": "/api/src/server.ts"
     },
     {
       "src": "/(.*)",

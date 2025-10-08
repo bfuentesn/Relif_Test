@@ -130,3 +130,7 @@ if (require.main === module) {
 }
 
 export default app;
+
+// Export para Vercel
+module.exports = app.callback();
+module.exports.default = app.callback();
