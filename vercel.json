@@ -25,5 +25,10 @@
       "src": "/(.*)",
       "dest": "/web/$1"
     }
-  ]
+  ],
+  "functions": {
+    "api/vercel.js": {
+      "maxDuration": 30
+    }
+  }
 }
