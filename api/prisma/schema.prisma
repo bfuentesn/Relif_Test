@@ -59,3 +59,20 @@ model Debt {
 
   @@index([clientId])
 }
+
+model AssistantConfig {
+  id           Int      @id @default(autoincrement())
+  name         String   @default("Carla")
+  tone         String   @default("profesional")
+  language     String   @default("es")
+  brands       String[] @default(["Toyota", "Hyundai", "Chevrolet", "Suzuki", "Mazda"])
+  models       Json     @default("{\"Toyota\":[\"Corolla\",\"RAV4\"],\"Hyundai\":[\"Tucson\",\"Elantra\"],\"Chevrolet\":[\"Tracker\",\"Onix\"],\"Suzuki\":[\"Swift\"],\"Mazda\":[\"CX-5\"]}")
+  branches     String[] @default(["Providencia", "Maipú", "La Florida"])
+  messageLengthMin Int  @default(120)
+  messageLengthMax Int  @default(180)
+  signature    String   @default("Carla — Automotora")
+  useEmojis    Boolean  @default(true)
+  additionalInstructions String? @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

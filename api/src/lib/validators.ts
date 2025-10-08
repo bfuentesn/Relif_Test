@@ -1,4 +1,6 @@
+
 import { z } from 'zod';
+
 
 export const createClientSchema = z.object({
   name: z.string().min(1, 'Nombre es requerido'),
@@ -18,6 +20,7 @@ export const createClientSchema = z.object({
   })).optional().default([])
 });
 
+
 export const createMessageSchema = z.object({
   text: z.string().min(1, 'Texto del mensaje es requerido'),
   role: z.enum(['client', 'agent'], {
@@ -25,5 +28,6 @@ export const createMessageSchema = z.object({
   })
 });
 
-export type CreateClientInput = z.infer<typeof createClientSchema>;
-export type CreateMessageInput = z.infer<typeof createMessageSchema>;
+
+export type CreateClientInput = typeof createClientSchema['_input'];
+export type CreateMessageInput = typeof createMessageSchema['_input'];

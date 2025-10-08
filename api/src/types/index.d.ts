@@ -1,9 +1,13 @@
 import { Client, Message, Debt, Role } from '@prisma/client';
 
-export interface ClientWithRelations extends Client {
+/**
+ * Cliente con todas sus relaciones cargadas
+ * Incluye la información completa del cliente más sus mensajes y deudas
+ */
+export type ClientWithRelations = Client & {
   messages: Message[];
   debts: Debt[];
-}
+};
 
 export interface CreateClientData {
   name: string;

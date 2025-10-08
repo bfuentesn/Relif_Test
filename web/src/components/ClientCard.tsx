@@ -1,4 +1,3 @@
-import React from 'react';
 import { Client } from '../types';
 
 interface ClientCardProps {

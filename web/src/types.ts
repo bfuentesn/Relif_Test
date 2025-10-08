@@ -49,3 +49,17 @@ export interface GenerateMessageResponse {
   message: string;
   clientId: number;
 }
+
+// Payload para crear cliente desde el frontend
+export interface CreateClientData {
+  name: string;
+  rut: string;
+  email?: string;
+  phone?: string;
+  messages?: Array<CreateMessageData>;
+  debts?: Array<{
+    institution: string;
+    amount: number;
+    dueDate: string; // ISO string
+  }>;
+}

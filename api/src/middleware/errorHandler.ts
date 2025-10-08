@@ -1,16 +1,21 @@
-import { Context, Next } from 'koa';
-import { Prisma } from '@prisma/client';
-import { ZodError } from 'zod';
+import type { Context } from 'koa';
+import { z } from 'zod';
 
-export async function errorHandler(ctx: Context, next: Next) {
+interface DatabaseError {
+  code: string;
+  message?: string;
+}
+
+export const errorHandler = async (ctx: Context, next: () => Promise<void>): Promise<void> => {
   try {
     await next();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error:', error);
 
-    // Prisma errors
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
+    // Database errors (duck typing for Prisma errors)
+    if (error && typeof error === 'object' && 'code' in error) {
+      const code = (error as { code: string }).code;
+      switch (code) {
         case 'P2002':
           ctx.status = 409;
           ctx.body = {
@@ -38,15 +43,16 @@ export async function errorHandler(ctx: Context, next: Next) {
       }
     }
 
-    // Zod validation errors
-    if (error instanceof ZodError) {
+    // Validation errors
+    if (error instanceof z.ZodError) {
+      const zodError = error as { errors: Array<{ path: string[] | string; message: string }> };
       ctx.status = 400;
       ctx.body = {
         success: false,
         error: 'Validation Error',
         message: 'Datos de entrada inválidos',
-        details: error.errors.map(err => ({
-          field: err.path.join('.'),
+        details: zodError.errors.map((err) => ({
+          field: Array.isArray(err.path) ? err.path.join('.') : err.path,
           message: err.message
         }))
       };
@@ -75,14 +81,12 @@ export async function errorHandler(ctx: Context, next: Next) {
       return;
     }
 
-    // Generic error
-    ctx.status = ctx.status || 500;
+    // Default error
+    ctx.status = 500;
     ctx.body = {
       success: false,
       error: 'Internal Server Error',
-      message: process.env.NODE_ENV === 'development' 
-        ? (error instanceof Error ? error.message : 'Error desconocido')
-        : 'Error interno del servidor'
+      message: 'Ocurrió un error inesperado'
     };
   }
-}
+};

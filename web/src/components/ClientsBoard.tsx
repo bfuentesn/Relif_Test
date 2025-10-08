@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Client } from '../types';
 import { ClientCard } from './ClientCard';
 import { ClientDetail } from './ClientDetail';
@@ -22,9 +22,7 @@ export function ClientsBoard() {
   };
 
   // Filtrar clientes activos (excluir los que están en seguimiento)
-  const activeClients = clients.filter(
-    client => !clientsToFollowUp.some(followUpClient => followUpClient.id === client.id)
-  );
+  const activeClients = clients.filter((client: Client) => !clientsToFollowUp.some((followUpClient: Client) => followUpClient.id === client.id));
 
   if (loading) {
     return (
@@ -61,7 +59,7 @@ export function ClientsBoard() {
           </h2>
           <div className="clients-list">
             {clientsToFollowUp.length > 0 ? (
-              clientsToFollowUp.map((client) => (
+              clientsToFollowUp.map((client: Client) => (
                 <ClientCard
                   key={client.id}
                   client={client}
@@ -82,7 +80,7 @@ export function ClientsBoard() {
           </h2>
           <div className="clients-list">
             {activeClients.length > 0 ? (
-              activeClients.map((client) => (
+              activeClients.map((client: Client) => (
                 <ClientCard
                   key={client.id}
                   client={client}

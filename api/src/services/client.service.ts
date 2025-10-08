@@ -1,7 +1,16 @@
 import { prisma } from '../lib/prisma';
 import { CreateClientData, CreateMessageData, ClientWithRelations } from '../types';
 
+/**
+ * Servicio para gestionar operaciones relacionadas con clientes
+ * Proporciona métodos para CRUD de clientes, mensajes y consultas especializadas
+ */
 export class ClientService {
+  /**
+   * Obtiene todos los clientes con información básica
+   * Solo retorna id, name y rut para optimizar la consulta
+   * @returns Lista de clientes ordenada por nombre
+   */
   static async getAllClients(): Promise<Pick<ClientWithRelations, 'id' | 'name' | 'rut'>[]> {
     return await prisma.client.findMany({
       select: {
@@ -15,6 +24,13 @@ export class ClientService {
     });
   }
 
+  /**
+   * Obtiene un cliente específico con todas sus relaciones
+   * Incluye mensajes ordenados por fecha (más reciente primero)
+   * y deudas ordenadas por fecha de vencimiento
+   * @param id - ID del cliente a buscar
+   * @returns Cliente con sus relaciones o null si no existe
+   */
   static async getClientById(id: number): Promise<ClientWithRelations | null> {
     return await prisma.client.findUnique({
       where: { id },
@@ -33,11 +49,17 @@ export class ClientService {
     });
   }
 
+  /**
+   * Obtiene clientes que necesitan seguimiento
+   * Criterios: sin mensajes o con último mensaje hace más de 7 días
+   * @returns Lista de clientes que requieren seguimiento
+   */
   static async getClientsToDoFollowUp(): Promise<Pick<ClientWithRelations, 'id' | 'name' | 'rut'>[]> {
+    const DAYS_FOR_FOLLOW_UP = 7;
     const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - DAYS_FOR_FOLLOW_UP);
 
-    // Clientes sin mensajes
+    // Obtener clientes sin mensajes
     const clientsWithoutMessages = await prisma.client.findMany({
       where: {
         messages: {
@@ -51,7 +73,7 @@ export class ClientService {
       }
     });
 
-    // Clientes con último mensaje hace más de 7 días
+    // Obtener clientes con último mensaje hace más de 7 días
     const clientsWithOldMessages = await prisma.client.findMany({
       where: {
         messages: {
@@ -74,17 +96,24 @@ export class ClientService {
       }
     });
 
-    // Combinar y eliminar duplicados
+    // Combinar ambas listas y eliminar duplicados
     const allClients = [...clientsWithoutMessages, ...clientsWithOldMessages];
     const uniqueClients = allClients.filter((client, index, self) => 
       index === self.findIndex(c => c.id === client.id)
     );
 
+    // Ordenar alfabéticamente por nombre
     return uniqueClients.sort((a, b) => a.name.localeCompare(b.name));
   }
 
+  /**
+   * Crea un nuevo cliente con sus mensajes y deudas iniciales
+   * Usa una transacción para garantizar la consistencia de los datos
+   * @param data - Datos del cliente a crear
+   * @returns Cliente creado con todas sus relaciones
+   */
   static async createClient(data: CreateClientData): Promise<ClientWithRelations> {
-    return await prisma.$transaction(async (tx) => {
+    return await prisma.$transaction(async (tx: any) => {
       // Crear cliente
       const client = await tx.client.create({
         data: {
@@ -138,6 +167,12 @@ export class ClientService {
     });
   }
 
+  /**
+   * Crea un nuevo mensaje para un cliente existente
+   * @param clientId - ID del cliente al que pertenece el mensaje
+   * @param data - Datos del mensaje a crear
+   * @returns Mensaje creado
+   */
   static async createMessage(clientId: number, data: CreateMessageData) {
     const message = await prisma.message.create({
       data: {
@@ -151,6 +186,12 @@ export class ClientService {
     return message;
   }
 
+  /**
+   * Obtiene las deudas de un cliente
+   * Útil para determinar si el cliente puede acceder a financiamiento
+   * @param clientId - ID del cliente
+   * @returns Objeto con flag hasDebts y lista de deudas
+   */
   static async getClientDebts(clientId: number): Promise<{ hasDebts: boolean; debts: any[] }> {
     const debts = await prisma.debt.findMany({
       where: { clientId },

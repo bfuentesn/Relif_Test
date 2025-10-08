@@ -1,249 +1,249 @@
-# Automotora CRM - Monorepo
+# 🚗 Relif Test - Sistema de Gestión de Clientes con IA
 
-Este es un monorepo que contiene una aplicación CRM para una automotora con backend API (Node.js + Koa + Prisma + PostgreSQL) y frontend web (React + Vite).
+Sistema completo de gestión de clientes para automotoras con asistente de IA integrado para seguimiento personalizado.
 
-## Estructura del proyecto
+## 📋 Descripción
 
-```
-.
-├─ docker-compose.yml
-├─ README.md
-├─ api/                    # Backend API
-│  ├─ src/
-│  │  ├─ server.ts
-│  │  ├─ routes/
-│  │  ├─ services/
-│  │  ├─ lib/
-│  │  ├─ middleware/
-│  │  └─ types/
-│  ├─ prisma/
-│  ├─ .env.example
-│  ├─ package.json
-│  └─ Dockerfile
-└─ web/                    # Frontend React
-   ├─ src/
-   │  ├─ components/
-   │  ├─ hooks/
-   │  └─ types.ts
-   ├─ .env.example
-   ├─ package.json
-   └─ Dockerfile
-```
+Este proyecto es una aplicación full-stack que permite:
+- ✅ Gestionar clientes y sus interacciones
+- ✅ Generar mensajes de seguimiento personalizados con IA
+- ✅ Configurar el comportamiento del asistente de IA
+- ✅ Rastrear deudas de clientes para determinar elegibilidad de financiamiento
+- ✅ Visualizar clientes que requieren seguimiento
 
-## Tecnologías utilizadas
+## 🏗️ Arquitectura
 
-### Backend
-- Node.js + TypeScript
-- Koa.js (framework web)
-- Prisma (ORM)
-- PostgreSQL (base de datos)
-- OpenAI API (generación de mensajes)
+### Backend (API)
+- **Framework**: Koa.js + TypeScript
+- **Base de Datos**: PostgreSQL con Prisma ORM
+- **IA**: OpenAI GPT-4o-mini
+- **Validación**: Zod
+- **Estructura**:
+  ```
+  api/
+  ├── src/
+  │   ├── routes/          # Endpoints REST
+  │   ├── services/        # Lógica de negocio
+  │   ├── lib/             # Utilidades y configuración
+  │   ├── middleware/      # Middleware de Koa
+  │   └── types/           # Definiciones TypeScript
+  ├── prisma/
+  │   ├── schema.prisma    # Schema de base de datos
+  │   └── migrations/      # Migraciones de BD
+  └── scripts/             # Scripts de inicialización
+  ```
 
-### Frontend
-- React + TypeScript
-- Vite (build tool)
-- Fetch API para comunicación con backend
+### Frontend (Web)
+- **Framework**: React + TypeScript + Vite
+- **Estilo**: CSS moderno con variables
+- **Estado**: React Hooks
+- **Estructura**:
+  ```
+  web/
+  ├── src/
+  │   ├── components/      # Componentes React
+  │   ├── hooks/           # Hooks personalizados
+  │   ├── types/           # Tipos TypeScript
+  │   └── api.ts           # Cliente API
+  └── public/              # Assets estáticos
+  ```
 
-## Configuración y ejecución
+## �� Instalación y Configuración
 
-### Con Docker Compose (Recomendado)
+### Requisitos Previos
+- Node.js 18+ 
+- PostgreSQL 14+
+- Docker y Docker Compose (opcional)
 
-1. **Clonar el repositorio y configurar variables de entorno:**
+### Variables de Entorno
+
+#### **Configuración Simplificada** ✨
+
+Solo necesitas configurar **un archivo**: `api/.env`
 
 ```bash
-# Copiar archivos de ejemplo de variables de entorno
+# 1. Copiar el archivo de ejemplo
 cp api/.env.example api/.env
-cp web/.env.example web/.env
 
-# Editar api/.env y agregar tu OPENAI_API_KEY
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/automotora?schema=public"
-# OPENAI_API_KEY="tu_api_key_aqui"
-# PORT=3000
-```
-
-2. **Levantar todos los servicios:**
-
-```bash
-docker-compose up --build
-```
-
-Esto levantará:
-- PostgreSQL en puerto 5432
-- API en puerto 3000
-- Web en puerto 5173
-
-3. **Ejecutar migraciones y seed:**
-
-```bash
-# En otra terminal
-docker-compose exec api npx prisma migrate deploy
-docker-compose exec api npx prisma db seed
-```
-
-### Desarrollo local
-
-Si prefieres ejecutar sin Docker:
-
-1. **Configurar PostgreSQL localmente**
-2. **Instalar dependencias:**
-
-```bash
-cd api && npm install
-cd ../web && npm install
-```
-
-3. **Configurar variables de entorno** (copiar .env.example a .env)
-4. **Ejecutar migraciones:**
-
-```bash
-cd api
-npx prisma migrate dev --name init
-npx prisma db seed
-```
-
-5. **Levantar servicios:**
-
-```bash
-# Terminal 1 - API
-cd api && npm run dev
-
-# Terminal 2 - Web
-cd web && npm run dev
-```
-
-## Variables de entorno
-
-### API (.env)
-```
+# 2. Editar y agregar tu API Key de OpenAI
+# api/.env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/automotora?schema=public"
-OPENAI_API_KEY="tu_api_key_de_openai"
+OPENAI_API_KEY="sk-proj-tu-api-key-aqui"  # Obtén tu key en: https://platform.openai.com/api-keys
 PORT=3000
 ```
 
-### Web (.env)
-```
-VITE_API_URL="http://localhost:3000"
-```
+**Nota:** Este mismo archivo `.env` funciona tanto para desarrollo local como para Docker Compose.
+📖 Ver [CONFIGURACION_ENV.md](./CONFIGURACION_ENV.md) para detalles completos.
 
-## API Endpoints
+### Instalación con Docker (Recomendado)
 
-### Health Check
 ```bash
-curl http://localhost:3000/health
-# Respuesta: {"status":"ok"}
+# 1. Configurar variables de entorno (solo la primera vez)
+cp api/.env.example api/.env
+# Edita api/.env y agrega tu OPENAI_API_KEY
+
+# 2. Iniciar servicios
+docker-compose up -d
+
+# 3. El sistema estará disponible en:
+# - Frontend: http://localhost:5173
+# - Backend: http://localhost:3000
+
+# 4. (Opcional) Poblar base de datos con datos de prueba
+docker-compose exec api npx prisma db seed
 ```
+
+### Instalación Manual
+
+**Backend**:
+```bash
+cd api
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+```
+
+**Frontend**:
+```bash
+cd web
+npm install
+npm run dev
+```
+
+## 📚 API Endpoints
 
 ### Clientes
-```bash
-# Obtener todos los clientes
-curl http://localhost:3000/clients
 
-# Obtener cliente específico
-curl http://localhost:3000/clients/1
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/clients` | Lista todos los clientes (id, name, rut) |
+| GET | `/clients/:id` | Obtiene un cliente con mensajes y deudas |
+| GET | `/clients-to-do-follow-up` | Clientes que necesitan seguimiento |
+| POST | `/client` | Crea un nuevo cliente |
+| POST | `/clients/:id/messages` | Crea un mensaje para un cliente |
+| GET | `/clients/:id/generateMessage` | Genera mensaje de IA para cliente |
 
-# Obtener clientes que requieren seguimiento
-curl http://localhost:3000/clients-to-do-follow-up
+### Configuración del Asistente
 
-# Crear nuevo cliente
-curl -X POST http://localhost:3000/clients \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Juan Pérez",
-    "rut": "12345678-9",
-    "email": "juan@email.com",
-    "phone": "+56912345678",
-    "messages": [
-      {
-        "text": "Hola, me interesa el Corolla",
-        "role": "client"
-      }
-    ],
-    "debts": []
-  }'
-```
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/assistant/config` | Obtiene configuración del asistente |
+| PUT | `/assistant/config` | Actualiza configuración del asistente |
 
-### Mensajes
-```bash
-# Crear mensaje para un cliente
-curl -X POST http://localhost:3000/clients/1/messages \
-  -H "Content-Type: application/json" \
-  -d '{
-    "text": "Gracias por contactarnos",
-    "role": "agent"
-  }'
+### Health Check
 
-# Generar mensaje de seguimiento con IA
-curl http://localhost:3000/clients/1/generateMessage
-```
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/health` | Verifica estado del servicio |
 
-## Modelos de datos
+## 🤖 Configuración del Asistente de IA
 
-### Client
-- `id`: ID único (autoincrement)
-- `name`: Nombre del cliente
-- `rut`: RUT único
-- `email`: Email opcional único
-- `phone`: Teléfono opcional
+El asistente puede ser personalizado con:
 
-### Message
-- `id`: ID único (autoincrement)
-- `text`: Contenido del mensaje
-- `role`: "client" o "agent"
-- `sentAt`: Fecha y hora de envío
-- `clientId`: Referencia al cliente
+- **Identidad**: Nombre, firma, tono de voz (profesional, cercano, formal, amigable)
+- **Idioma**: Español o Inglés
+- **Catálogo**: Marcas y modelos de vehículos disponibles
+- **Sucursales**: Ubicaciones de la automotora
+- **Mensajes**: Longitud min/max, uso de emojis
+- **Instrucciones adicionales**: Guías personalizadas para el prompt
 
-### Debt
-- `id`: ID único (autoincrement)
-- `institution`: Institución de la deuda
-- `amount`: Monto en pesos chilenos
-- `dueDate`: Fecha de vencimiento
-- `clientId`: Referencia al cliente
+## 🎨 Características de Clean Code Implementadas
 
-## Funcionalidades
+### Organización
+✅ Código modularizado por responsabilidades  
+✅ Separación clara de capas (routes, services, types)  
+✅ Nombres descriptivos y consistentes  
+
+### Documentación
+✅ Comentarios JSDoc en todas las funciones públicas  
+✅ Explicaciones de lógica compleja  
+✅ README detallado  
+
+### Calidad
+✅ TypeScript estricto en todo el proyecto  
+✅ Validación de datos con Zod  
+✅ Manejo consistente de errores  
+✅ Sin errores de compilación  
+
+### Mejores Prácticas
+✅ Transacciones para operaciones críticas  
+✅ Separación de concerns (UI, lógica, datos)  
+✅ Prompts dinámicos basados en configuración  
+✅ Reutilización de código mediante servicios  
+
+## 🔧 Scripts Útiles
 
 ### Backend
-- API REST con Koa.js
-- ORM con Prisma para PostgreSQL
-- Validación de datos
-- Manejo de errores
-- Integración con OpenAI para generación de mensajes
-- CORS habilitado para frontend
+```bash
+npm run dev         # Desarrollo con hot-reload
+npm run build       # Compilar TypeScript
+npm start           # Producción
+npm run migrate     # Ejecutar migraciones
+```
 
 ### Frontend
-- Tablero con dos listas: clientes que requieren seguimiento y clientes activos
-- Detalle de cliente con historial de mensajes y deudas
-- Generación automática de mensajes de seguimiento con IA
-- Interfaz responsive y moderna
-
-### IA (OpenAI)
-- Genera mensajes personalizados en español
-- Considera el estado financiero del cliente (deudas)
-- Sugiere modelos de autos disponibles
-- Tono profesional y cercano
-- Longitud optimizada (120-180 palabras)
-
-## Scripts disponibles
-
-### API
 ```bash
-npm run dev          # Desarrollo con tsx
-npm run build        # Compilar TypeScript
-npm run start        # Ejecutar versión compilada
-npm run prisma:migrate # Ejecutar migraciones
-npm run prisma:seed  # Poblar base de datos
+npm run dev         # Desarrollo con hot-reload
+npm run build       # Build para producción
+npm run preview     # Preview de producción
 ```
 
-### Web
+## 📝 Modelo de Datos
+
+### Client
+- id, name, rut (único), email, phone
+- timestamps (createdAt, updatedAt)
+- Relaciones: messages[], debts[]
+
+### Message
+- id, text, role (client|agent), sentAt
+- Relación: client
+
+### Debt
+- id, institution, amount, dueDate
+- Relación: client
+
+### AssistantConfig
+- Configuración única del asistente
+- Nombre, tono, idioma, catálogo, etc.
+
+## 🎯 Flujo de Generación de Mensajes
+
+1. Usuario selecciona cliente que necesita seguimiento
+2. Sistema verifica si el cliente tiene deudas
+3. Se construye el prompt dinámicamente basado en:
+   - Configuración del asistente
+   - Datos del cliente (nombre, RUT)
+   - Estado de deudas
+4. OpenAI genera mensaje personalizado
+5. Mensaje se guarda automáticamente en BD
+6. Usuario puede editar antes de enviar
+
+## 🔒 Seguridad
+
+- Validación de entrada con Zod
+- Transacciones para integridad de datos
+- Variables de entorno para secretos
+- CORS configurado
+- Sanitización de errores al cliente
+
+## 🐛 Debugging
+
+Ver logs en tiempo real:
 ```bash
-npm run dev          # Desarrollo con Vite
-npm run build        # Compilar para producción
-npm run preview      # Preview de la build
+docker-compose logs -f api
+docker-compose logs -f web
 ```
 
-## Notas importantes
+## 📄 Licencia
 
-- La base de datos se inicializa automáticamente con datos de prueba
-- Los mensajes de IA se generan usando OpenAI GPT-4o-mini
-- El sistema considera clientes para seguimiento si su último mensaje fue hace más de 7 días
-- La financiación solo se ofrece a clientes sin deudas pendientes
-- Todos los textos generados por IA están en español neutro chileno
+MIT
+
+## 👥 Contribución
+
+Este proyecto fue refactorizado siguiendo principios de Clean Code:
+- Comentarios descriptivos
+- Código organizado y modular
+- Sin errores de compilación
+- Documentación completa

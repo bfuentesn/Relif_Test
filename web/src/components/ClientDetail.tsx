@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ClientWithRelations } from '../types';
 
 interface ClientDetailProps {
@@ -11,6 +11,12 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
   const [generatedMessage, setGeneratedMessage] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Limpiar el mensaje generado cuando cambie el cliente
+  useEffect(() => {
+    setGeneratedMessage('');
+    setError(null);
+  }, [client.id]);
 
   const handleGenerateMessage = async () => {
     try {
@@ -55,8 +61,8 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
     <div className="client-detail-overlay">
       <div className="client-detail">
         <div className="client-detail-header">
-          <h2>Detalle del Cliente</h2>
-          <button className="btn btn-secondary" onClick={onClose}>
+          <h2>� Información Completa del Cliente</h2>
+          <button className="btn btn-close-light" onClick={onClose}>
             ✕
           </button>
         </div>
@@ -65,12 +71,12 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
           <div className="client-basic-info">
             <h3>{client.name}</h3>
             <p><strong>RUT:</strong> {client.rut}</p>
-            {client.email && <p><strong>Email:</strong> {client.email}</p>}
-            {client.phone && <p><strong>Teléfono:</strong> {client.phone}</p>}
+            {client.email && <p><strong>📧 Email:</strong> {client.email}</p>}
+            {client.phone && <p><strong>📱 Teléfono:</strong> {client.phone}</p>}
           </div>
 
           <div className="debts-section">
-            <h3>Deudas</h3>
+            <h3>💳 Deudas Registradas</h3>
             {client.debts.length > 0 ? (
               <div className="debts-table">
                 <table>
@@ -98,7 +104,7 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
           </div>
 
           <div className="messages-section">
-            <h3>Historial de Mensajes</h3>
+            <h3>💬 Historial de Conversaciones</h3>
             {client.messages.length > 0 ? (
               <div className="messages-list">
                 {client.messages.map((message) => (
@@ -123,13 +129,13 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
           </div>
 
           <div className="ai-section">
-            <h3>Generar Mensaje de Seguimiento</h3>
+            <h3>🤖 Asistente de IA</h3>
             <button 
-              className="btn btn-primary"
+              className="btn btn-ai"
               onClick={handleGenerateMessage}
               disabled={isGenerating}
             >
-              {isGenerating ? 'Generando...' : 'Generar mensaje de seguimiento'}
+              {isGenerating ? '⏳ Generando...' : '✨ Generar Mensaje'}
             </button>
 
             {error && (
@@ -140,12 +146,12 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
 
             {generatedMessage && (
               <div className="generated-message">
-                <h4>Mensaje generado:</h4>
+                <h4>✨ Último mensaje generado:</h4>
                 <div className="message-content ai-message">
                   {generatedMessage}
                 </div>
                 <p className="message-note">
-                  ✅ Este mensaje se ha guardado automáticamente en el historial
+                  ✅ Este mensaje se ha guardado automáticamente. Revisa el historial arriba para verlo.
                 </p>
               </div>
             )}

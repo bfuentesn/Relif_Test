@@ -1,6 +1,7 @@
-import { ApiResponse } from './types';
+import { ApiResponse, ClientWithRelations, CreateClientData } from './types';
+import type { AssistantConfig, UpdateAssistantConfig } from './types/assistant';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
 
 async function fetchJSON<T>(url: string, options: RequestInit = {}): Promise<T> {
   try {
@@ -46,6 +47,13 @@ export const api = {
     return fetchJSON('/clients-to-do-follow-up');
   },
 
+  async createClient(data: CreateClientData): Promise<ApiResponse<ClientWithRelations>> {
+    return fetchJSON('/client', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
   // Mensajes
   async createMessage(clientId: number, data: { text: string; role: 'client' | 'agent' }): Promise<ApiResponse<any>> {
     return fetchJSON(`/clients/${clientId}/messages`, {
@@ -56,5 +64,17 @@ export const api = {
 
   async generateMessage(clientId: number): Promise<ApiResponse<{ message: string; clientId: number }>> {
     return fetchJSON(`/clients/${clientId}/generateMessage`);
+  },
+
+  // Assistant Configuration
+  async getAssistantConfig(): Promise<ApiResponse<AssistantConfig>> {
+    return fetchJSON('/assistant/config');
+  },
+
+  async updateAssistantConfig(data: UpdateAssistantConfig): Promise<ApiResponse<AssistantConfig>> {
+    return fetchJSON('/assistant/config', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   },
 };
