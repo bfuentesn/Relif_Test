@@ -10,6 +10,7 @@ import json = require('koa-json');
 
 // Declaración global para require (Node.js)
 declare const require: any;
+declare const module: any;
 
 type KoaType = { default: any };
 const koa = require('koa') as KoaType;
@@ -123,6 +124,9 @@ async function startServer(): Promise<void> {
   }
 }
 
-startServer();
+// Solo iniciar el servidor si se ejecuta directamente (no en Vercel)
+if (require.main === module) {
+  startServer();
+}
 
 export default app;

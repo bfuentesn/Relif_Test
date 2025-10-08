@@ -1,3 +1,3 @@
-import app from './server'
+const app = require('./dist/server').default;
 
-export default app.callback()
+module.exports = app.callback();
