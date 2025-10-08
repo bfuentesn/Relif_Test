@@ -1,0 +1,39 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "web/package.json",
+      "use": "@vercel/static-build",
+      "config": { 
+        "distDir": "dist",
+        "buildCommand": "npm run build"
+      }
+    },
+    {
+      "src": "api/src/server.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["api/prisma/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/src/server.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/web/$1"
+    }
+  ],
+  "functions": {
+    "api/src/server.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "installCommand": "npm install"
+}

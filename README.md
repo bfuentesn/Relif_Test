@@ -1,249 +1,321 @@
-# 🚗 Relif Test - Sistema de Gestión de Clientes con IA
+# CRM Automotriz con Asistente de IA
 
-Sistema completo de gestión de clientes para automotoras con asistente de IA integrado para seguimiento personalizado.
+Sistema CRM especializado para concesionarias automotrices que integra un asistente de IA (GPT-4o-mini) para generar mensajes de seguimiento personalizados. Desarrollado con React, TypeScript, Node.js/Koa y PostgreSQL.
 
-## 📋 Descripción
+## 🏗️ Arquitectura del Proyecto
 
-Este proyecto es una aplicación full-stack que permite:
-- ✅ Gestionar clientes y sus interacciones
-- ✅ Generar mensajes de seguimiento personalizados con IA
-- ✅ Configurar el comportamiento del asistente de IA
-- ✅ Rastrear deudas de clientes para determinar elegibilidad de financiamiento
-- ✅ Visualizar clientes que requieren seguimiento
+```
+.
+├── api/                    # Backend API (Node.js + Koa + Prisma)
+│   ├── src/
+│   │   ├── services/       # Lógica de negocio y servicio de IA
+│   │   ├── routes/         # Endpoints REST
+│   │   └── lib/           # Utilidades y configuración
+│   └── prisma/            # Schema DB y migraciones
+├── web/                   # Frontend (React + TypeScript + Vite)
+│   ├── src/
+│   │   ├── components/    # Componentes React
+│   │   ├── hooks/        # Custom hooks
+│   │   └── types/        # Definiciones TypeScript
+└── vistas/               # Screenshots de la aplicación
+```
 
-## 🏗️ Arquitectura
+## 📋 Características Principales
 
-### Backend (API)
-- **Framework**: Koa.js + TypeScript
-- **Base de Datos**: PostgreSQL con Prisma ORM
-- **IA**: OpenAI GPT-4o-mini
-- **Validación**: Zod
-- **Estructura**:
-  ```
-  api/
-  ├── src/
-  │   ├── routes/          # Endpoints REST
-  │   ├── services/        # Lógica de negocio
-  │   ├── lib/             # Utilidades y configuración
-  │   ├── middleware/      # Middleware de Koa
-  │   └── types/           # Definiciones TypeScript
-  ├── prisma/
-  │   ├── schema.prisma    # Schema de base de datos
-  │   └── migrations/      # Migraciones de BD
-  └── scripts/             # Scripts de inicialización
-  ```
+### 🤖 Asistente de IA Inteligente
+- **Generación contextual**: Mensajes personalizados basados en historial de conversaciones
+- **Reglas de negocio**: Manejo automático de clientes con/sin deudas para ofertas de financiamiento
+- **Configuración dinámica**: Tono, idioma, catálogo de vehículos y sucursales personalizables
+- **Context-aware**: Utiliza conversaciones anteriores para evitar repeticiones
 
-### Frontend (Web)
-- **Framework**: React + TypeScript + Vite
-- **Estilo**: CSS moderno con variables
-- **Estado**: React Hooks
-- **Estructura**:
-  ```
-  web/
-  ├── src/
-  │   ├── components/      # Componentes React
-  │   ├── hooks/           # Hooks personalizados
-  │   ├── types/           # Tipos TypeScript
-  │   └── api.ts           # Cliente API
-  └── public/              # Assets estáticos
-  ```
+### 📊 Dashboard de Métricas
+- Estadísticas en tiempo real de clientes activos vs seguimiento
+- Gráficos de distribución y eficiencia del CRM
+- Alertas automáticas para clientes que requieren atención
 
-## �� Instalación y Configuración
+### 👥 Gestión de Clientes
+- Separación visual por estado (activos/seguimiento)
+- Vista detallada con historial completo de conversaciones
+- Información de deudas y elegibilidad para financiamiento
+- Creación y edición de clientes
 
-### Requisitos Previos
-- Node.js 18+ 
-- PostgreSQL 14+
-- Docker y Docker Compose (opcional)
+### ⚙️ Configuración del Asistente
+- Control total sobre la personalidad de la IA
+- Gestión de catálogo (marcas, modelos, sucursales)
+- Configuración de longitud de mensajes y uso de emojis
+- Instrucciones adicionales personalizadas
 
-### Variables de Entorno
+## 🚀 Instrucciones de Instalación y Ejecución
 
-#### **Configuración Simplificada** ✨
+### Prerrequisitos
+- Docker y Docker Compose
+- Node.js 18+ (para desarrollo local)
+- Cuenta de OpenAI con API Key
 
-Solo necesitas configurar **un archivo**: `api/.env`
-
+### 1. Clonar el Repositorio
 ```bash
-# 1. Copiar el archivo de ejemplo
-cp api/.env.example api/.env
+git clone <repository-url>
+cd Relif_Test
+```
 
-# 2. Editar y agregar tu API Key de OpenAI
-# api/.env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/automotora?schema=public"
-OPENAI_API_KEY="sk-proj-tu-api-key-aqui"  # Obtén tu key en: https://platform.openai.com/api-keys
+### 2. Configurar Variables de Entorno
+```bash
+# Crear archivo .env en la carpeta api/
+cp api/.env.example api/.env
+```
+
+Editar `api/.env` con tus datos:
+```env
+DATABASE_URL="postgresql://postgres:postgres@db:5432/automotora?schema=public"
+OPENAI_API_KEY="sk-proj-TU_API_KEY_AQUI"
 PORT=3000
 ```
 
-**Nota:** Este mismo archivo `.env` funciona tanto para desarrollo local como para Docker Compose.
-📖 Ver [CONFIGURACION_ENV.md](./CONFIGURACION_ENV.md) para detalles completos.
-
-### Instalación con Docker (Recomendado)
-
+### 3. Ejecutar con Docker (Recomendado)
 ```bash
-# 1. Configurar variables de entorno (solo la primera vez)
-cp api/.env.example api/.env
-# Edita api/.env y agrega tu OPENAI_API_KEY
+# Iniciar todos los servicios
+docker-compose up --build
 
-# 2. Iniciar servicios
-docker-compose up -d
-
-# 3. El sistema estará disponible en:
-# - Frontend: http://localhost:5173
-# - Backend: http://localhost:3000
-
-# 4. (Opcional) Poblar base de datos con datos de prueba
-docker-compose exec api npx prisma db seed
+# En segundo plano
+docker-compose up -d --build
 ```
 
-### Instalación Manual
+### 4. Acceder a la Aplicación
+- **Frontend**: http://localhost:5173
+- **API**: http://localhost:3000
+- **Base de datos**: localhost:5432
 
-**Backend**:
+### 5. Datos de Prueba
+El sistema incluye datos de prueba automáticos con 6 clientes de ejemplo:
+- Clientes con/sin deudas
+- Diferentes estados de conversación
+- Configuración predeterminada del asistente
+
+### 6. Comandos Útiles
 ```bash
+# Ver logs
+docker-compose logs -f
+
+# Reiniciar base de datos
+docker-compose down -v
+docker-compose up --build
+
+# Ejecutar seed manualmente
+docker-compose exec api npm run prisma:seed
+```
+
+### 7. Desarrollo Local (Opcional)
+```bash
+# Backend
 cd api
 npm install
-npx prisma generate
-npx prisma migrate dev
 npm run dev
-```
 
-**Frontend**:
-```bash
+# Frontend (nueva terminal)
 cd web
 npm install
 npm run dev
 ```
 
-## 📚 API Endpoints
+## 🧠 Diseño y Arquitectura del Prompt de IA
 
-### Clientes
+### Experiencia Previa en Mintii
+Durante mi trabajo en Mintii, tuve la oportunidad de trabajar con sistemas de prompt engineering donde la configuración del comportamiento del asistente era crucial. Esta experiencia me enseñó la importancia de:
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/clients` | Lista todos los clientes (id, name, rut) |
-| GET | `/clients/:id` | Obtiene un cliente con mensajes y deudas |
-| GET | `/clients-to-do-follow-up` | Clientes que necesitan seguimiento |
-| POST | `/client` | Crea un nuevo cliente |
-| POST | `/clients/:id/messages` | Crea un mensaje para un cliente |
-| GET | `/clients/:id/generateMessage` | Genera mensaje de IA para cliente |
+1. **Contexto de conversaciones anteriores**: Fundamental para mantener coherencia y evitar repeticiones
+2. **Reglas de negocio claras**: El prompt debe entender cuándo ofrecer financiamiento vs alternativas
+3. **Personalización dinámica**: Cada empresa necesita ajustar el tono y catálogo según su marca
 
-### Configuración del Asistente
+### Modelo Utilizado: GPT-4o-mini
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/assistant/config` | Obtiene configuración del asistente |
-| PUT | `/assistant/config` | Actualiza configuración del asistente |
+**Elección del modelo**:
+- **GPT-4o-mini**: Equilibrio perfecto entre calidad y costo
+- **Latencia baja**: Respuestas rápidas para mejor UX
+- **Suficiente capacidad**: Para mensajes de seguimiento comerciales
+- **Costo-efectivo**: Ideal para alto volumen de mensajes
 
-### Health Check
+### Proceso de Desarrollo del Prompt
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| GET | `/health` | Verifica estado del servicio |
+#### 1. Análisis de Requisitos
+- Mensajes de seguimiento comercial para automotoras
+- Manejo de información financiera sensible (deudas)
+- Personalización por empresa (catálogo, sucursales, tono)
+- Coherencia con conversaciones previas
 
-## 🤖 Configuración del Asistente de IA
+#### 2. Estructura del Prompt Final
 
-El asistente puede ser personalizado con:
+**System Prompt** (buildSystemPromptFromConfig):
+```
+You are "Carla", a sales executive at a Chilean car dealership...
 
-- **Identidad**: Nombre, firma, tono de voz (profesional, cercano, formal, amigable)
-- **Idioma**: Español o Inglés
-- **Catálogo**: Marcas y modelos de vehículos disponibles
-- **Sucursales**: Ubicaciones de la automotora
-- **Mensajes**: Longitud min/max, uso de emojis
-- **Instrucciones adicionales**: Guías personalizadas para el prompt
+Business rules:
+- Sell only brand-new cars. Catalog: Toyota (Corolla, RAV4), Hyundai (Tucson, Elantra)...
+- Financing eligibility: ONLY offer financing if client has NO overdue debts
+- Context awareness: Use conversation history to write relevant follow-ups
 
-## 🎨 Características de Clean Code Implementadas
+Style and output:
+- Spanish, 120-180 words, professional tone
+- Include: greeting, 1-2 model suggestions, CTA for branch visit
+- Sign with: "Carla — Automotora"
+```
 
-### Organización
-✅ Código modularizado por responsabilidades  
-✅ Separación clara de capas (routes, services, types)  
-✅ Nombres descriptivos y consistentes  
+**Developer Prompt** (buildDeveloperPromptFromConfig):
+```
+Context: client name, RUT, hasDebts = true/false
+- If hasDebts = true: NO financing, mention alternatives
+- If hasDebts = false: MAY offer financing
+- Use conversation history for contextual follow-ups
+```
 
-### Documentación
-✅ Comentarios JSDoc en todas las funciones públicas  
-✅ Explicaciones de lógica compleja  
-✅ README detallado  
+#### 3. Iteraciones de Mejora
 
-### Calidad
-✅ TypeScript estricto en todo el proyecto  
-✅ Validación de datos con Zod  
-✅ Manejo consistente de errores  
-✅ Sin errores de compilación  
+**Versión 1**: Prompt estático
+```
+"Escribe un mensaje de seguimiento para un cliente de automotora"
+```
+❌ Problemas: Genérico, sin contexto de negocio
 
-### Mejores Prácticas
-✅ Transacciones para operaciones críticas  
-✅ Separación de concerns (UI, lógica, datos)  
-✅ Prompts dinámicos basados en configuración  
-✅ Reutilización de código mediante servicios  
+**Versión 2**: Reglas básicas
+```
+"Eres un vendedor de autos. Si el cliente tiene deudas, no ofrezcas financiamiento"
+```
+⚠️ Problemas: Sin personalización, tono inconsistente
 
-## 🔧 Scripts Útiles
+**Versión 3**: Configuración dinámica (actual)
+```typescript
+function buildSystemPromptFromConfig(cfg) {
+  // Construye prompt dinámico basado en configuración
+  // Incluye catálogo, sucursales, tono, etc.
+}
+```
+✅ Beneficios: Totalmente personalizable, coherente, específico del negocio
+
+### Calidad y Explicación de la Generación
+
+#### Factores de Calidad Implementados:
+
+1. **Context Window Management**: Se incluyen las últimas conversaciones para mantener coherencia
+2. **Business Logic Integration**: Las reglas de financiamiento están hardcodeadas en el prompt
+3. **Dynamic Personalization**: Cada empresa puede tener su propia configuración
+4. **Output Validation**: Control de longitud, tono y formato
+5. **Error Handling**: Fallbacks en caso de fallas de API
+
+#### Proceso de Generación:
+1. **Cargar configuración** del asistente desde BD
+2. **Construir System Prompt** dinámicamente con catálogo y reglas
+3. **Incluir contexto** del cliente (nombre, RUT, deudas, historial)
+4. **Llamar a OpenAI** con temperatura 0.7 para balance creatividad/consistencia
+5. **Validar output** y guardar mensaje en BD automáticamente
+
+## 🎨 Explicación del Diseño Frontend
+
+### Filosofía de Diseño
+
+El diseño del frontend se estructura siguiendo el flujo natural de trabajo de un vendedor de automotora:
+
+#### 1. Dashboard como Punto de Entrada
+**Decisión de diseño**: El dashboard es la vista inicial porque:
+- **Visión general inmediata**: Los vendedores necesitan ver el estado general del CRM al llegar
+- **Métricas clave**: Cuántos clientes requieren atención urgente
+- **Eficiencia operativa**: Permite priorizar el trabajo del día
+- **Motivación**: Ver el progreso y eficiencia genera engagement
+
+**Elementos del dashboard**:
+- Tarjetas de estadísticas visuales
+- Gráficos de distribución de clientes
+- Alertas de actividad reciente
+- Indicadores de eficiencia
+
+#### 2. Sección de Clientes Estratégicamente Organizada
+**Separación por estado**:
+- **Clientes que requieren seguimiento** (arriba): Prioridad máxima, destacados visualmente
+- **Clientes activos** (abajo): Gestión de mantenimiento
+
+**Por qué esta estructura**:
+- **Priorización visual**: El rojo/naranja llama la atención sobre lo urgente
+- **Flujo de trabajo eficiente**: Lo más importante está siempre visible primero
+- **Reducción de errores**: Es imposible pasar por alto clientes que necesitan atención
+
+#### 3. Configuración del Asistente Detallada
+**Aspectos configurables organizados por categorías**:
+
+**Identidad del Asistente**:
+- Nombre personalizado (humaniza la interacción)
+- Tono de voz (profesional, cercano, formal, amigable)
+- Firma corporativa
+
+**Catálogo de Negocio**:
+- Marcas y modelos disponibles
+- Sucursales activas
+- Gestión dinámica (agregar/quitar)
+
+**Configuración de Mensajes**:
+- Longitud mínima y máxima
+- Uso de emojis
+- Instrucciones adicionales específicas
+
+**Por qué esta granularidad**:
+- **Adaptabilidad**: Cada concesionaria tiene su propia personalidad de marca
+- **Control total**: Los gerentes pueden ajustar el asistente sin código
+- **Consistencia**: Todos los mensajes siguen las mismas reglas
+- **Escalabilidad**: Fácil agregar nuevos vehículos o sucursales
+
+### Mejoras que Implementaría con Más Tiempo
+
+- **Notificaciones push** para nuevas consultas y recordatorios de seguimiento
+- **Analytics avanzado** con métricas de conversión y ventas por período
+- **Scoring automático** de clientes basado en comportamiento de compra
+- **Plantillas de mensajes** predefinidas para diferentes escenarios
+- **App móvil** para vendedores en campo con acceso offline
+- **Sistema de permisos** para diferentes roles de usuario
+- **Análisis de sentimiento** en mensajes para priorizar clientes urgentes
+
+## 🚀 Mejoras y Extensiones Propuestas
+
+### Integraciones
+- **WhatsApp Business API** para envío directo de mensajes
+- **Salesforce/HubSpot** para sincronización de clientes
+- **APIs bancarias** para preaprobación de créditos automática
+
+### Funcionalidades Avanzadas
+- **Múltiples concesionarias** en un solo sistema (SaaS)
+- **Reconocimiento de voz** para transcribir llamadas telefónicas
+- **Chatbot web** que derive leads automáticamente al CRM
+- **Reportes automáticos** para gerencia con KPIs de ventas
+
+### IA Mejorada
+- **Predicción de compra** basada en patrones de comportamiento
+- **Recomendación de modelos** según perfil del cliente
+- **Optimización de horarios** para contactar clientes
+- **Detección de urgencia** en mensajes para priorizar respuestas
+
+## 📸 Capturas de Pantalla
+
+El proyecto incluye 3 vistas principales documentadas en la carpeta `vistas/`:
+
+- **vista1.png**: Dashboard principal con métricas y estadísticas
+- **vista2.png**: Gestión de clientes con estados diferenciados
+- **vista3.png**: Configuración detallada del asistente de IA
+
+## 🛠️ Stack Tecnológico
 
 ### Backend
-```bash
-npm run dev         # Desarrollo con hot-reload
-npm run build       # Compilar TypeScript
-npm start           # Producción
-npm run migrate     # Ejecutar migraciones
-```
+- **Runtime**: Node.js 18+
+- **Framework**: Koa.js (ligero y modular)
+- **Base de Datos**: PostgreSQL + Prisma ORM
+- **AI Integration**: OpenAI GPT-4o-mini
+- **Validation**: Zod schemas
+- **Containerization**: Docker
 
 ### Frontend
-```bash
-npm run dev         # Desarrollo con hot-reload
-npm run build       # Build para producción
-npm run preview     # Preview de producción
-```
+- **Framework**: React 18 + TypeScript
+- **Build Tool**: Vite (rápido y moderno)
+- **State Management**: React hooks + Context
+- **Styling**: CSS modules + CSS custom properties
+- **HTTP Client**: Fetch API nativo
 
-## 📝 Modelo de Datos
-
-### Client
-- id, name, rut (único), email, phone
-- timestamps (createdAt, updatedAt)
-- Relaciones: messages[], debts[]
-
-### Message
-- id, text, role (client|agent), sentAt
-- Relación: client
-
-### Debt
-- id, institution, amount, dueDate
-- Relación: client
-
-### AssistantConfig
-- Configuración única del asistente
-- Nombre, tono, idioma, catálogo, etc.
-
-## 🎯 Flujo de Generación de Mensajes
-
-1. Usuario selecciona cliente que necesita seguimiento
-2. Sistema verifica si el cliente tiene deudas
-3. Se construye el prompt dinámicamente basado en:
-   - Configuración del asistente
-   - Datos del cliente (nombre, RUT)
-   - Estado de deudas
-4. OpenAI genera mensaje personalizado
-5. Mensaje se guarda automáticamente en BD
-6. Usuario puede editar antes de enviar
-
-## 🔒 Seguridad
-
-- Validación de entrada con Zod
-- Transacciones para integridad de datos
-- Variables de entorno para secretos
-- CORS configurado
-- Sanitización de errores al cliente
-
-## 🐛 Debugging
-
-Ver logs en tiempo real:
-```bash
-docker-compose logs -f api
-docker-compose logs -f web
-```
-
-## 📄 Licencia
-
-MIT
-
-## 👥 Contribución
-
-Este proyecto fue refactorizado siguiendo principios de Clean Code:
-- Comentarios descriptivos
-- Código organizado y modular
-- Sin errores de compilación
-- Documentación completa
+### DevOps & Deployment
+- **Development**: Docker Compose
+- **Production Ready**: Vercel config incluido
+- **Database**: Migrations automáticas con Prisma
+- **Environment**: Variables de entorno configurables

@@ -19,11 +19,11 @@ export function useClients() {
       ]);
 
       if (clientsResponse.success) {
-        setClients(clientsResponse.data || []);
+        setClients((clientsResponse.data || []) as Client[]);
       }
 
       if (followUpResponse.success) {
-        setClientsToFollowUp(followUpResponse.data || []);
+        setClientsToFollowUp((followUpResponse.data || []) as Client[]);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error cargando clientes');

@@ -1,5 +1,10 @@
+/**
+ * Componente ClientDetail
+ * Muestra información detallada de un cliente con sus mensajes, deudas y generación de IA
+ */
 import { useState, useEffect } from 'react';
 import { ClientWithRelations } from '../types';
+import { formatCurrency, formatDate, getTimeAgo, isOverdue } from '../utils/formatters';
 
 interface ClientDetailProps {
   client: ClientWithRelations;
@@ -31,60 +36,38 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Intl.DateTimeFormat('es-CL', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    }).format(new Date(dateString));
-  };
-
-  const formatDateTime = (dateString: string) => {
-    return new Intl.DateTimeFormat('es-CL', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(dateString));
-  };
-
   return (
     <div className="client-detail-overlay">
       <div className="client-detail">
         <div className="client-detail-header">
-          <h2>� Información Completa del Cliente</h2>
+          <h2>👤 Información Completa del Cliente</h2>
           <button className="btn btn-close-light" onClick={onClose}>
             ✕
           </button>
         </div>
 
         <div className="client-detail-content">
+          {/* Información Básica */}
           <div className="client-basic-info">
             <h3>{client.name}</h3>
             <p><strong>RUT:</strong> {client.rut}</p>
             {client.email && <p><strong>📧 Email:</strong> {client.email}</p>}
             {client.phone && <p><strong>📱 Teléfono:</strong> {client.phone}</p>}
+            <p><strong>📅 Cliente desde:</strong> {formatDate(client.createdAt)}</p>
           </div>
 
+          {/* Deudas */}
           <div className="debts-section">
             <h3>💳 Deudas Registradas</h3>
-            {client.debts.length > 0 ? (
+            {client.debts && client.debts.length > 0 ? (
               <div className="debts-table">
                 <table>
                   <thead>
                     <tr>
                       <th>Institución</th>
                       <th>Monto</th>
-                      <th>Fecha de Vencimiento</th>
+                      <th>Vencimiento</th>
+                      <th>Estado</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -93,19 +76,28 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
                         <td>{debt.institution}</td>
                         <td>{formatCurrency(debt.amount)}</td>
                         <td>{formatDate(debt.dueDate)}</td>
+                        <td>
+                          <span className={`status-badge ${isOverdue(debt.dueDate) ? 'danger' : 'active'}`}>
+                            {isOverdue(debt.dueDate) ? '⚠️ Vencida' : '✅ Vigente'}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <p className="no-debts">Sin deudas registradas</p>
+              <div className="no-debts">
+                <p>✅ El cliente no tiene deudas registradas</p>
+                <p><em>¡Candidato ideal para financiamiento!</em></p>
+              </div>
             )}
           </div>
 
+          {/* Mensajes */}
           <div className="messages-section">
-            <h3>💬 Historial de Conversaciones</h3>
-            {client.messages.length > 0 ? (
+            <h3>💬 Historial de Mensajes</h3>
+            {client.messages && client.messages.length > 0 ? (
               <div className="messages-list">
                 {client.messages.map((message) => (
                   <div key={message.id} className={`message ${message.role}`}>
@@ -114,7 +106,7 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
                         {message.role === 'client' ? '👤 Cliente' : '🤖 Agente'}
                       </span>
                       <span className="message-time">
-                        {formatDateTime(message.sentAt)}
+                        {getTimeAgo(message.sentAt)}
                       </span>
                     </div>
                     <div className="message-content">
@@ -124,14 +116,20 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
                 ))}
               </div>
             ) : (
-              <p className="no-messages">Sin mensajes registrados</p>
+              <div className="no-messages">
+                <p>📝 No hay mensajes registrados</p>
+                <p><em>¡Perfecto para iniciar un seguimiento!</em></p>
+              </div>
             )}
           </div>
 
+          {/* Sección de IA */}
           <div className="ai-section">
             <h3>🤖 Asistente de IA</h3>
+            <p>Genera un mensaje personalizado de seguimiento para este cliente</p>
+            
             <button 
-              className="btn btn-ai"
+              className="btn btn-ai" 
               onClick={handleGenerateMessage}
               disabled={isGenerating}
             >
@@ -146,13 +144,13 @@ export function ClientDetail({ client, onClose, onGenerateMessage }: ClientDetai
 
             {generatedMessage && (
               <div className="generated-message">
-                <h4>✨ Último mensaje generado:</h4>
-                <div className="message-content ai-message">
+                <h4>📝 Mensaje Generado:</h4>
+                <div className="ai-message">
                   {generatedMessage}
                 </div>
-                <p className="message-note">
-                  ✅ Este mensaje se ha guardado automáticamente. Revisa el historial arriba para verlo.
-                </p>
+                <div className="message-note">
+                  <em>💡 Mensaje personalizado basado en el perfil y contexto del cliente</em>
+                </div>
               </div>
             )}
           </div>

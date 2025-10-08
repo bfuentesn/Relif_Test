@@ -1,17 +1,38 @@
-import { prisma } from '../lib/prisma';
-import { CreateClientData, CreateMessageData, ClientWithRelations } from '../types';
-
 /**
  * Servicio para gestionar operaciones relacionadas con clientes
  * Proporciona métodos para CRUD de clientes, mensajes y consultas especializadas
  */
+import { prisma } from '../lib/prisma';
+import { CreateClientData, CreateMessageData, ClientWithRelations } from '../types';
+import { FOLLOW_UP_CONFIG } from '../utils/constants';
+
+/**
+ * Tipo para cliente básico (solo campos públicos)
+ */
+type BasicClient = Pick<ClientWithRelations, 'id' | 'name' | 'rut'>;
+
+/**
+ * Tipo para resultado de deudas de cliente
+ */
+interface ClientDebtsResult {
+  hasDebts: boolean;
+  debts: Array<{
+    id: number;
+    institution: string;
+    amount: number;
+    dueDate: Date;
+    clientId: number;
+    createdAt: Date;
+    updatedAt: Date;
+  }>;
+}
+
 export class ClientService {
   /**
    * Obtiene todos los clientes con información básica
    * Solo retorna id, name y rut para optimizar la consulta
-   * @returns Lista de clientes ordenada por nombre
    */
-  static async getAllClients(): Promise<Pick<ClientWithRelations, 'id' | 'name' | 'rut'>[]> {
+  static async getAllClients(): Promise<BasicClient[]> {
     return await prisma.client.findMany({
       select: {
         id: true,
@@ -28,8 +49,6 @@ export class ClientService {
    * Obtiene un cliente específico con todas sus relaciones
    * Incluye mensajes ordenados por fecha (más reciente primero)
    * y deudas ordenadas por fecha de vencimiento
-   * @param id - ID del cliente a buscar
-   * @returns Cliente con sus relaciones o null si no existe
    */
   static async getClientById(id: number): Promise<ClientWithRelations | null> {
     return await prisma.client.findUnique({
@@ -51,66 +70,61 @@ export class ClientService {
 
   /**
    * Obtiene clientes que necesitan seguimiento
-   * Criterios: sin mensajes o con último mensaje hace más de 7 días
-   * @returns Lista de clientes que requieren seguimiento
+   * Criterios: sin mensajes o con último mensaje hace más de X días (configurable)
    */
-  static async getClientsToDoFollowUp(): Promise<Pick<ClientWithRelations, 'id' | 'name' | 'rut'>[]> {
-    const DAYS_FOR_FOLLOW_UP = 7;
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - DAYS_FOR_FOLLOW_UP);
+  static async getClientsToDoFollowUp(): Promise<BasicClient[]> {
+    const followUpDate = new Date();
+    followUpDate.setDate(followUpDate.getDate() - FOLLOW_UP_CONFIG.DAYS_WITHOUT_MESSAGES);
 
-    // Obtener clientes sin mensajes
-    const clientsWithoutMessages = await prisma.client.findMany({
+    // Optimización: usar una sola consulta con operadores OR
+    const clients = await prisma.client.findMany({
       where: {
-        messages: {
-          none: {}
-        }
-      },
-      select: {
-        id: true,
-        name: true,
-        rut: true
-      }
-    });
-
-    // Obtener clientes con último mensaje hace más de 7 días
-    const clientsWithOldMessages = await prisma.client.findMany({
-      where: {
-        messages: {
-          some: {}
-        },
-        NOT: {
-          messages: {
-            some: {
-              sentAt: {
-                gt: sevenDaysAgo
-              }
+        OR: [
+          // Clientes sin mensajes
+          {
+            messages: {
+              none: {}
             }
+          },
+          // Clientes con último mensaje antiguo
+          {
+            AND: [
+              {
+                messages: {
+                  some: {}
+                }
+              },
+              {
+                NOT: {
+                  messages: {
+                    some: {
+                      sentAt: {
+                        gt: followUpDate
+                      }
+                    }
+                  }
+                }
+              }
+            ]
           }
-        }
+        ]
       },
       select: {
         id: true,
         name: true,
         rut: true
+      },
+      orderBy: {
+        name: 'asc'
       }
     });
 
-    // Combinar ambas listas y eliminar duplicados
-    const allClients = [...clientsWithoutMessages, ...clientsWithOldMessages];
-    const uniqueClients = allClients.filter((client, index, self) => 
-      index === self.findIndex(c => c.id === client.id)
-    );
-
-    // Ordenar alfabéticamente por nombre
-    return uniqueClients.sort((a, b) => a.name.localeCompare(b.name));
+    return clients;
   }
 
   /**
    * Crea un nuevo cliente con sus mensajes y deudas iniciales
    * Usa una transacción para garantizar la consistencia de los datos
-   * @param data - Datos del cliente a crear
-   * @returns Cliente creado con todas sus relaciones
    */
   static async createClient(data: CreateClientData): Promise<ClientWithRelations> {
     return await prisma.$transaction(async (tx: any) => {
@@ -126,30 +140,34 @@ export class ClientService {
 
       // Crear mensajes si existen
       if (data.messages && data.messages.length > 0) {
+        const messageData = data.messages.map((msg: any) => ({
+          text: msg.text,
+          role: msg.role,
+          sentAt: new Date(),
+          clientId: client.id
+        }));
+
         await tx.message.createMany({
-          data: data.messages.map(msg => ({
-            text: msg.text,
-            role: msg.role,
-            sentAt: new Date(),
-            clientId: client.id
-          }))
+          data: messageData
         });
       }
 
       // Crear deudas si existen
       if (data.debts && data.debts.length > 0) {
+        const debtData = data.debts.map((debt: any) => ({
+          institution: debt.institution,
+          amount: debt.amount,
+          dueDate: new Date(debt.dueDate),
+          clientId: client.id
+        }));
+
         await tx.debt.createMany({
-          data: data.debts.map(debt => ({
-            institution: debt.institution,
-            amount: debt.amount,
-            dueDate: new Date(debt.dueDate),
-            clientId: client.id
-          }))
+          data: debtData
         });
       }
 
       // Retornar cliente con relaciones
-      return await tx.client.findUnique({
+      const clientWithRelations = await tx.client.findUnique({
         where: { id: client.id },
         include: {
           messages: {
@@ -163,18 +181,21 @@ export class ClientService {
             }
           }
         }
-      }) as ClientWithRelations;
+      });
+
+      if (!clientWithRelations) {
+        throw new Error('Error al recuperar el cliente creado');
+      }
+
+      return clientWithRelations;
     });
   }
 
   /**
    * Crea un nuevo mensaje para un cliente existente
-   * @param clientId - ID del cliente al que pertenece el mensaje
-   * @param data - Datos del mensaje a crear
-   * @returns Mensaje creado
    */
   static async createMessage(clientId: number, data: CreateMessageData) {
-    const message = await prisma.message.create({
+    return await prisma.message.create({
       data: {
         text: data.text,
         role: data.role,
@@ -182,17 +203,13 @@ export class ClientService {
         clientId: clientId
       }
     });
-
-    return message;
   }
 
   /**
    * Obtiene las deudas de un cliente
    * Útil para determinar si el cliente puede acceder a financiamiento
-   * @param clientId - ID del cliente
-   * @returns Objeto con flag hasDebts y lista de deudas
    */
-  static async getClientDebts(clientId: number): Promise<{ hasDebts: boolean; debts: any[] }> {
+  static async getClientDebts(clientId: number): Promise<ClientDebtsResult> {
     const debts = await prisma.debt.findMany({
       where: { clientId },
       orderBy: {
@@ -203,6 +220,47 @@ export class ClientService {
     return {
       hasDebts: debts.length > 0,
       debts
+    };
+  }
+
+  /**
+   * Verifica si un cliente existe
+   * Método auxiliar para validaciones rápidas
+   */
+  static async clientExists(id: number): Promise<boolean> {
+    const count = await prisma.client.count({
+      where: { id }
+    });
+    return count > 0;
+  }
+
+  /**
+   * Obtiene estadísticas básicas de clientes
+   * Útil para dashboards y métricas
+   */
+  static async getClientStats(): Promise<{
+    total: number;
+    needFollowUp: number;
+    withDebts: number;
+    withoutDebts: number;
+  }> {
+    const [total, followUpClients, clientsWithDebts] = await Promise.all([
+      prisma.client.count(),
+      this.getClientsToDoFollowUp(),
+      prisma.client.count({
+        where: {
+          debts: {
+            some: {}
+          }
+        }
+      })
+    ]);
+
+    return {
+      total,
+      needFollowUp: followUpClients.length,
+      withDebts: clientsWithDebts,
+      withoutDebts: total - clientsWithDebts
     };
   }
 }

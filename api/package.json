@@ -7,10 +7,13 @@
     "dev": "tsx src/server.ts",
     "build": "tsc -p .",
     "start": "node dist/server.js",
+    "vercel-build": "npm run build && npx prisma generate && npx prisma migrate deploy",
+    "postinstall": "npx prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:seed": "prisma db seed",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:setup": "npx prisma migrate deploy && npx prisma db seed"
   },
   "dependencies": {
     "@koa/cors": "^5.0.0",

@@ -25,15 +25,14 @@ USER appuser
 # Copiar archivos de dependencias
 COPY --chown=appuser:appuser package*.json ./
 
+# Copiar schema de Prisma primero (necesario para postinstall)
+COPY --chown=appuser:appuser prisma ./prisma/
+
 # Instalar dependencias
 RUN npm install
 
-# Copiar código fuente
+# Copiar resto del código fuente
 COPY --chown=appuser:appuser . .
-
-# Limpiar completamente y regenerar cliente de Prisma
-RUN rm -rf node_modules/.prisma node_modules/@prisma/client && \
-    PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x npx prisma generate
 
 # Instalar tipos de TypeScript necesarios
 RUN npm install --save-dev @types/node @types/koa @types/koa-bodyparser @types/koa-json @types/koa__cors

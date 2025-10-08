@@ -4,7 +4,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
+# Environment variables (mantener .env.example y .env.production)
 .env
 .env.local
 .env.development.local
@@ -50,9 +50,6 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # IDE
 .vscode/
 .idea/
@@ -66,5 +63,8 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 
-# Prisma
-prisma/migrations/
+# Vercel
+.vercel
+
+# Prisma (mantener las migraciones para Vercel)
+# prisma/migrations/ - Se necesita para Vercel

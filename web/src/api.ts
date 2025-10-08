@@ -1,7 +1,10 @@
 import { ApiResponse, ClientWithRelations, CreateClientData } from './types';
 import type { AssistantConfig, UpdateAssistantConfig } from './types/assistant';
 
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+    ? '/api' 
+    : 'http://localhost:3000');
 
 async function fetchJSON<T>(url: string, options: RequestInit = {}): Promise<T> {
   try {
