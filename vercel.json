@@ -12,7 +12,8 @@
       "src": "api/vercel.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["api/prisma/**", "api/src/**", "api/dist/**"]
+        "includeFiles": ["api/prisma/**", "api/src/**", "api/dist/**"],
+        "maxLambdaSize": "50mb"
       }
     }
   ],
@@ -25,10 +26,5 @@
       "src": "/(.*)",
       "dest": "/web/$1"
     }
-  ],
-  "functions": {
-    "api/vercel.js": {
-      "maxDuration": 30
-    }
-  }
+  ]
 }
